@@ -33,4 +33,8 @@ export class CreateTaskDto {
   @IsOptional()
   @IsString()
   message?: string;
+
+  @IsOptional()
+  @IsString()
+  comment?: string;
 }

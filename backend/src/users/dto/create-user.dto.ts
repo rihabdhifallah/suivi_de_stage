@@ -6,4 +6,6 @@ export class CreateUserDto {
   country?: string;
   phone?: string;
   universite?: string;
+  name: string | undefined;
+  specialite?: string;
 }

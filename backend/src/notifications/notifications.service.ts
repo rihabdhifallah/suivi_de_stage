@@ -1,36 +1,64 @@
-// notifications.service.ts
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Notification } from './notification.entity';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Notification } from "./notification.entity";
+import { User } from "../users/user.entity";
 
 @Injectable()
-export class NotificationsService {
+export class NotificationService {
   constructor(
-  @InjectRepository(Notification)
-  private repo: Repository<Notification>,
-) {}
+    @InjectRepository(Notification)
+    private repo: Repository<Notification>,
 
-  findByCompany(email: string) {
-    return this.repo.find({
-      where: { receiver: email },
-      order: { createdAt: 'DESC' },
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+  ) {}
+
+  // 🔔 CREATE NOTIFICATION
+  async create(
+    recipientId: number,
+    type: string,
+    title: string,
+    message?: string,
+    entityId?: number,
+  ) {
+    const user = await this.userRepo.findOne({ where: { id: recipientId } });
+    if (!user) throw new Error("Recipient student not found");
+
+    return this.repo.save({
+      user,
+      type,
+      title,
+      message,
+      entityId,
     });
   }
 
-  async markAsRead(id: number) {
-    return this.repo.update(id, { status: 'read' });
+  // 📥 GET USER NOTIFICATIONS
+  async findMyNotifications(userId: number) {
+    return this.repo.find({
+      where: { user: { id: userId } },
+      order: { createdAt: "DESC" },
+    });
   }
 
-  async createNotification(body: any) {
-  return this.repo.save({
-    receiver: body.email,
-    message: body.message,
-    pdf: body.pdf,
-    status: 'unread',
-  });
-}
-async updateStatus(id: number, status: string) {
-  return this.repo.update(id, { status });
-}
+  // 👁 MARK AS READ
+  async markAsRead(id: number) {
+    return this.repo.update(id, { read: true });
+  }
+
+  // 🧹 DELETE
+  async delete(id: number) {
+    return this.repo.delete(id);
+  }
+
+  // 🔢 UNREAD COUNT
+  async countUnread(userId: number) {
+    return this.repo.count({
+      where: {
+        user: { id: userId },
+        read: false,
+      },
+    });
+  }
 }

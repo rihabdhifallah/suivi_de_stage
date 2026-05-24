@@ -49,8 +49,7 @@ class _SignupAcademicState extends State<SignupAcademic> {
       "etablissement": etablissement.text,
     });
 
-    Navigator.pushReplacementNamed(context, '/');
-  }
+Navigator.pushReplacementNamed(context, '/login');  }
 
   Widget inputField(TextEditingController controller, String label) {
     return Container(
@@ -119,7 +118,6 @@ class _SignupAcademicState extends State<SignupAcademic> {
 
                   SizedBox(height: 20),
 
-                  // ✅ Bouton transparent
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

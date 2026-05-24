@@ -31,4 +31,7 @@ export class Task {
 
   @Column({ nullable: true, type: 'text' })
   message?: string;
+
+  @Column({ nullable: true, type: 'text' })
+  comment?: string;
 }

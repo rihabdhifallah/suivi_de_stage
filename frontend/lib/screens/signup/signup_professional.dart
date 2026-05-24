@@ -54,7 +54,7 @@ class _SignupProfessionalState extends State<SignupProfessional> {
         "entreprise": entreprise.text,
       });
 
-      Navigator.pushReplacementNamed(context, '/');
+Navigator.pushReplacementNamed(context, '/login');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Erreur lors de l'inscription")),

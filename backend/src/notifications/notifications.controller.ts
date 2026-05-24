@@ -1,55 +1,44 @@
-// notifications.controller.ts
-import { Controller, Get, Post, Body, Param, Patch } from '@nestjs/common';
-import { NotificationsService } from './notifications.service';
+import { Controller, Get, Post, Patch, Param, Delete, Req, Body, UseGuards } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { NotificationService } from "./notifications.service";
 
-@Controller('notifications')
+@Controller("notifications")
+@UseGuards(AuthGuard("jwt"))
 export class NotificationController {
-  notificationsService: any;
-  tasksService: any;
-  constructor(private readonly service: NotificationsService) {}
+  constructor(private service: NotificationService) {}
 
+  // 📥 GET MY NOTIFICATIONS
+  @Get()
+  getMy(@Req() req) {
+    return this.service.findMyNotifications(req.user.id);
+  }
+
+  // 🔢 UNREAD COUNT
+  @Get("unread-count")
+  unread(@Req() req) {
+    return this.service.countUnread(req.user.id);
+  }
+
+  // ✉ SEND NOTIFICATION
   @Post()
-  create(@Body() body: any) {
-    return this.service.createNotification(body);
+  send(@Body() body: { recipientId: number; title: string; message: string; type?: string }) {
+    return this.service.create(
+      body.recipientId,
+      body.type || "comment",
+      body.title,
+      body.message,
+    );
   }
 
-  @Get(':email')
-  find(@Param('email') email: string) {
-    return this.service.findByCompany(email);
+  // 👁 MARK AS READ
+  @Patch(":id/read")
+  read(@Param("id") id: number) {
+    return this.service.markAsRead(id);
   }
 
-  @Patch(':id/read')
-  markAsRead(@Param('id') id: number) {
-    return this.service.markAsRead(+id);
+  // 🗑 DELETE
+  @Delete(":id")
+  remove(@Param("id") id: number) {
+    return this.service.delete(id);
   }
-
- @Patch(':id/accept')
-async accept(@Param('id') id: number) {
-  const notif = await this.notificationsService.updateStatus(id, 'accepted');
-
-  console.log("ACCEPT CALLED", notif); // 👈 debug
-
-  await this.tasksService.create({
-    message: notif.message,
-    company: notif.receiver,
-    status: 'accepted',
-  });
-
-  return notif;
-}
-
-@Patch(':id/reject')
-async reject(@Param('id') id: number) {
-  const notif = await this.notificationsService.updateStatus(id, 'rejected');
-
-  console.log("REJECT CALLED", notif); // 👈 debug
-
-  await this.tasksService.create({
-    message: notif.message,
-    company: notif.receiver,
-    status: 'rejected',
-  });
-
-  return notif;
-}
 }

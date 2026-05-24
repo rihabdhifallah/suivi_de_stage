@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/services/api_service.dart';
 
 class SignupStudent extends StatefulWidget {
@@ -17,17 +18,20 @@ class _SignupStudentState extends State<SignupStudent> {
   final confirm = TextEditingController();
   final niveau = TextEditingController();
   final universite = TextEditingController();
-  final specialite = TextEditingController(); // ✅ NEW
-
+  final specialite = TextEditingController(); // 
+final phone = TextEditingController();
+final country = TextEditingController();
   void signup() async {
     // ✅ Vérification champs vides
-    if (name.text.isEmpty ||
-        email.text.isEmpty ||
-        password.text.isEmpty ||
-        confirm.text.isEmpty ||
-        niveau.text.isEmpty ||
-        universite.text.isEmpty ||
-        specialite.text.isEmpty) {
+   if (name.text.isEmpty ||
+    email.text.isEmpty ||
+    password.text.isEmpty ||
+    confirm.text.isEmpty ||
+    niveau.text.isEmpty ||
+    universite.text.isEmpty ||
+    specialite.text.isEmpty ||
+    phone.text.isEmpty ||
+    country.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Veuillez remplir tous les champs")),
       );
@@ -37,23 +41,36 @@ class _SignupStudentState extends State<SignupStudent> {
     //  Vérification password
     if (password.text != confirm.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Les mots de passe ne correspondent pas")),
+        const SnackBar(content: Text("Les mots de passe ne correspondent pas")),
       );
       return;
     }
 
-    // API
-    await api.signup(body: {
-      "role": "student",
-      "name": name.text,
-      "email": email.text,
-      "password": password.text,
-      "niveau": niveau.text,
-      "universite": universite.text,
-      "specialite": specialite.text, 
-    });
+    //  Vérification téléphone (8 chiffres)
+    if (!RegExp(r'^\d{8}$').hasMatch(phone.text.trim())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Le numéro de téléphone doit contenir exactement 8 chiffres"), backgroundColor: Colors.red),
+      );
+      return;
+    }
 
-    Navigator.pushReplacementNamed(context, '/');
+    final nav = Navigator.of(context);
+    // API
+   await api.signup(body: {
+  "role": "student",
+
+  "name": name.text.trim(),
+  "email": email.text.trim(),
+  "password": password.text,
+
+  "niveau": niveau.text.trim(),
+  "universite": universite.text.trim(),
+  "specialite": specialite.text.trim(),
+
+  "phone": phone.text.trim(),
+  "country": country.text.trim(),
+});
+    nav.pushReplacementNamed('/');
   }
 
  Widget inputField(TextEditingController controller, String label) {
@@ -74,6 +91,8 @@ class _SignupStudentState extends State<SignupStudent> {
     icon = Icons.account_balance;
   } else if (label.toLowerCase().contains("spécialité")) {
     icon = Icons.menu_book;
+  } else if (label.toLowerCase().contains("téléphone")) {
+    icon = Icons.phone;
   } else {
     icon = Icons.text_fields;
   }
@@ -85,7 +104,13 @@ class _SignupStudentState extends State<SignupStudent> {
       obscureText: label.toLowerCase().contains("mot de passe") ||
           label.toLowerCase().contains("confirmer"),
       style: const TextStyle(color: Colors.white),
+      keyboardType: label.toLowerCase().contains("téléphone") ? TextInputType.number : TextInputType.text,
+      maxLength: label.toLowerCase().contains("téléphone") ? 8 : null,
+      inputFormatters: label.toLowerCase().contains("téléphone")
+          ? [FilteringTextInputFormatter.digitsOnly]
+          : null,
       decoration: InputDecoration(
+        counterText: "",
         prefixIcon: Icon(icon, color: Colors.white70), // 🔥 ICON
         labelText: label,
         labelStyle: const TextStyle(color: Colors.white70),
@@ -145,7 +170,8 @@ class _SignupStudentState extends State<SignupStudent> {
                   inputField(niveau, "Niveau"),
                   inputField(universite, "Université"),
                   inputField(specialite, "Spécialité"), // 
-
+inputField(phone, "Téléphone"),
+inputField(country, "Adresse"),
                   SizedBox(height: 20),
 
                   SizedBox(

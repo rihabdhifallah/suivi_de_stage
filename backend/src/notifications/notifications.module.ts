@@ -1,19 +1,14 @@
-// notifications.module.ts
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Notification } from './notification.entity';
-import { NotificationsService } from './notifications.service';
-import { NotificationController } from './notifications.controller';
-import { TaskModule } from 'src/task/task.module';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Notification } from "./notification.entity";
+import { User } from "../users/user.entity";
+import { NotificationService } from "./notifications.service";
+import { NotificationController } from "./notifications.controller";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Notification]),
-        TaskModule, // 
-
-],
-  providers: [NotificationsService],
+  imports: [TypeOrmModule.forFeature([Notification, User])],
+  providers: [NotificationService],
   controllers: [NotificationController],
-  exports: [NotificationsService],
-
+  exports: [NotificationService],
 })
-export class NotificationsModule {}
+export class NotificationModule {}

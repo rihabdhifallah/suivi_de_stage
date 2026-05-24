@@ -8,12 +8,23 @@ export class Company {
   @Column()
   nom!: string;
 
+ @Column({ unique: true })
+email!: string;
   @Column()
-  email!: string;
+  secteurActivite!: string;
+
+  @Column()
+  adresse!: string;
 
   @Column()
   telephone!: string;
 
-  @Column()
-  pays!: string;
+ @Column()
+password!: string;
+
+@Column()
+role!: string;
+
+@Column({ default: 'active' })
+status!: string;
 }

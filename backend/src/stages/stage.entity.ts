@@ -1,36 +1,60 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { StageStatus } from "./stage-status.enum";
+import { Application } from "src/applications/application.entity";
 
 @Entity('stages')
 export class Stage {
+
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Column()
-  title!: string;
+titre!: string;
 
-  @Column()
-  company!: string;
+@Column()
+domaine!: string;
 
-  @Column()
-  subject!: string;
-
-  @Column({ nullable: true })
-  startDate!: string;
-
-  @Column({ nullable: true })
-  endDate!: string;
+@Column()
+duree!: string;
 
   @Column({ nullable: true })
   niveau!: string;
 
   @Column({ nullable: true })
   places!: number;
+@OneToMany(() => Application, (app) => app.stage)
+applications!: Application[];
+  @Column({ nullable: true })
+  companyEmail!: string;
+  @Column({ nullable: true })
+  companyName!: string; 
+  @Column({ nullable: true })
+date!: string;
 
-  @Column({ type: 'enum', enum: StageStatus, default: StageStatus.PENDING })
+@Column({ nullable: true })
+city!: string;
+
+@Column("simple-array", { nullable: true })
+skills!: string[];
+  @Column({
+    type: 'enum',
+    enum: StageStatus,
+    default: StageStatus.PENDING,
+  })
   status!: StageStatus;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: ['company_offer', 'student_proposal', 'admin_created'],
+    default: 'company_offer',
+  })
   type!: 'company_offer' | 'student_proposal' | 'admin_created';
+
+  @Column({ default: false })
   published!: boolean;
+
+ @Column({ default: true })
+active!: boolean;
 }
+
+export { StageStatus };

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:frontend/services/api_service.dart';
 
 class SignupCompany extends StatefulWidget {
@@ -17,9 +18,10 @@ class _SignupCompanyState extends State<SignupCompany> {
   final confirm = TextEditingController();
   final country = TextEditingController();
   final phone = TextEditingController();
+final secteur = TextEditingController();
 
   void signup() async {
-    // ✅ check empty fields
+    //  check empty fields
     if (name.text.isEmpty ||
         email.text.isEmpty ||
         password.text.isEmpty ||
@@ -31,7 +33,7 @@ class _SignupCompanyState extends State<SignupCompany> {
       return;
     }
 
-    // ❌ password check
+    // password check
     if (password.text != confirm.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Les mots de passe ne correspondent pas")),
@@ -39,20 +41,30 @@ class _SignupCompanyState extends State<SignupCompany> {
       return;
     }
 
+    //  Vérification téléphone (8 chiffres)
+    if (!RegExp(r'^\d{8}$').hasMatch(phone.text.trim())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Le numéro de téléphone doit contenir exactement 8 chiffres"), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    final nav = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       await api.signup(body: {
         "role": "company",
-        "name": name.text,
-        "email": email.text,
+        "name": name.text.trim(),
+        "email": email.text.trim(),
         "password": password.text,
-        "country": country.text,
-          "phone": phone.text,
-
+        "country": country.text.trim(),
+        "phone": phone.text.trim(),
+        "secteurActivite": secteur.text.trim(),
       });
-
-      Navigator.pushReplacementNamed(context, '/login');
+      nav.pushReplacementNamed('/login');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text("Erreur signup")),
       );
     }
@@ -85,7 +97,13 @@ class _SignupCompanyState extends State<SignupCompany> {
       style: const TextStyle(color: Colors.white),
       obscureText: label.toLowerCase().contains("mot de passe") ||
           label.toLowerCase().contains("confirme"),
+      keyboardType: label.toLowerCase().contains("téléphone") ? TextInputType.number : TextInputType.text,
+      maxLength: label.toLowerCase().contains("téléphone") ? 8 : null,
+      inputFormatters: label.toLowerCase().contains("téléphone")
+          ? [FilteringTextInputFormatter.digitsOnly]
+          : null,
       decoration: InputDecoration(
+        counterText: "",
         prefixIcon: Icon(icon, color: Colors.white70), // 🔥 ICON ICI
         labelText: label,
         labelStyle: const TextStyle(color: Colors.white70),
@@ -139,7 +157,7 @@ class _SignupCompanyState extends State<SignupCompany> {
                   inputField(confirm, "Confirme mot de passe"),
                   inputField(country, "Pays"),
                   inputField(phone, "Téléphone"), 
-
+inputField(secteur, "Secteur d'activité"),
                   const SizedBox(height: 20),
 
                   SizedBox(

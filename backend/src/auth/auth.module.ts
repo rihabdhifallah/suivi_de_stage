@@ -7,21 +7,25 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { User } from '../users/user.entity';
 import { JwtStrategy } from './jwt.strategy'; // 
-import { StageModule } from 'src/stages/stage.module';
-import { Journal } from 'src/journal/journal.entity';
-import { Rapport } from 'src/rapport/rapport.entity';
+import { StagesModule } from 'src/stages/stages.module';
+import { Rapport } from 'src/rapports/rapport.entity';
+import { RegisterCompanyController } from './register-company/register-company.controller';
+import { RegisterCompanyService } from './register-company/register-company.service';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Journal, Rapport]), //
-    PassportModule,
-    JwtModule.register({
-      secret: 'SECRET_KEY',
-      signOptions: { expiresIn: '1d' },
-    }),
-        StageModule, // 
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy], 
+ imports: [
+  TypeOrmModule.forFeature([User, Rapport]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
+  JwtModule.register({
+    secret: 'SECRET_KEY',
+    signOptions: { expiresIn: '1d' },
+  }),
+
+  StagesModule,
+  MailModule, // 
+],
+  controllers: [AuthController,RegisterCompanyController],
+  providers: [AuthService, JwtStrategy,RegisterCompanyService,], 
 })
 export class AuthModule {}

@@ -1,6 +1,6 @@
 export enum StageStatus {
-  PENDING = 'pending',
-  ACCEPTED = 'accepted',
-  REJECTED = 'rejected',
-  PUBLISHED = 'published',
+  PENDING = 'PENDING',
+  PUBLISHED = 'PUBLISHED',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
 }

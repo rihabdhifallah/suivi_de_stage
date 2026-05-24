@@ -1,22 +1,34 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  ManyToOne,
+} from "typeorm";
+import { User } from "../users/user.entity";
 
 @Entity()
 export class Notification {
+
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
-  receiver!: string;
+  @ManyToOne(() => User)
+  user!: User; // recipient (student)
 
-  @Column()
+  @Column({ default: "comment" })
+  type!: string; // comment | demande | accept | refuse | rapport
+  @Column({ default: "Notification" })
+  title!: string;
+  @Column({ default: "" })
   message!: string;
 
-  @Column({ type: 'text', nullable: true })
-  pdf!: string;
+  @Column({ default: false })
+  read!: boolean;
+ @Column({ nullable: true })
+  entityId!: number; 
+  // id rapport / demande / etc (optional)
 
-  @Column({ default: 'unread' })
-status!: string; // unread | accepted | rejected
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdAt!: Date;
 }

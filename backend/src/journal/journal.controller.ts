@@ -1,24 +1,43 @@
-import { Controller, Post, Body, Param, Get } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Journal } from './journal.entity';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  Request,
+  UseGuards,
+} from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { JournalService } from "./journal.service";
+import { CreateJournalDto } from "./dto/create-journal.dto";
 
-@Controller('journal')
+@UseGuards(AuthGuard("jwt"))
+@Controller("journal")
 export class JournalController {
-  constructor(
-    @InjectRepository(Journal)
-    private readonly journalRepo: Repository<Journal>,
-  ) {}
+  constructor(private service: JournalService) {}
+@Post()
+create(@Request() req, @Body() dto: CreateJournalDto) {
+  console.log(" JOURNAL HIT");
+  console.log("USER:", req.user);
+  console.log("DTO:", dto);
 
-  @Post()
-  create(@Body() body: any) {
-    return this.journalRepo.save(body);
+  return this.service.create(req.user.userId, dto);
+}
+
+  @Get("me")
+  findMine(@Request() req) {
+    return this.service.findByStudent(req.user.userId);
   }
 
-  @Get(':studentId')
-  find(@Param('studentId') id: number) {
-    return this.journalRepo.find({
-      where: { studentId: id },
-    });
+  @Get(":id")
+  findOne(@Param("id") id: number) {
+    return this.service.findOne(id);
   }
+
+  @Delete(":id")
+remove(@Param("id") id: number) {
+  return this.service.delete(id);
+}
+  
 }
